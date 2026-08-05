@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 
-function ChooseLanguage() {
+function ChooseLanguage({ onContinue }) {
   const [languages, setLanguages] = useState([]);
   const [selectedLanguageId, setSelectedLanguageId] = useState("");
 
