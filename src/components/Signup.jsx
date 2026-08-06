@@ -7,6 +7,7 @@ function Signup() {
     const [message, setMessage] = useState("");
 
     const handleSignup = async () => {
+        console.log("Supabase client in Signup:", supabase);
         const {data, error} = await supabase.auth.signUp({
             email,
             password,

@@ -13,6 +13,9 @@ function ChooseLanguage({ user, onContinue }) {
         .select("*")
         .order("name");
 
+        console.log("Fetched languages", data);
+        console.log("Language fetch error:", error);
+
       if (error) {
         console.error("Error fetching languages:", error);
       } else {
@@ -25,7 +28,15 @@ function ChooseLanguage({ user, onContinue }) {
 
   // ⭐ THIS is the part you were missing
   async function handleContinue() {
-    if (!selectedLanguageId) return;
+    console.log("handleContinue fired");
+    console.log("selectedLanguageId:", selectedLanguageId);
+    console.log("user.idk:",user.id);
+
+    if (!selectedLanguageId) {
+      console.log("No language detected - aborting insert");
+     return;
+    }
+    
 
     const { error } = await supabase
       .from("user_languages")
@@ -48,7 +59,10 @@ function ChooseLanguage({ user, onContinue }) {
 
       <select
         value={selectedLanguageId}
-        onChange={(e) => setSelectedLanguageId(e.target.value)}
+        onChange={(e) => {
+          console.log("Selected language:", e.target.value);
+          setSelectedLanguageId(e.target.value);
+        }}
       >
         <option value="">Select a language...</option>
 

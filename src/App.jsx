@@ -6,7 +6,7 @@ import ChooseLanguage from "./components/ChooseLanguage";
 function App() {
   const [user, setUser] = useState(null);
   const [entries, setEntries] = useState([]);
-  const [hasChosenLanguage, setHasChosenLanguage] = useState(true); // default true until we check
+  const [hasChosenLanguage, setHasChosenLanguage] = useState(false); // default true until we check
 
   // Load diary entries
   const loadEntries = async (userId) => {
@@ -26,7 +26,10 @@ function App() {
   //  Handle login + language check
   const handleLogin = async (loggedInUser) => {
     console.log("Logged in user:", loggedInUser);
+    console.log("User ID:", loggedInUser.id);
     setUser(loggedInUser);
+
+    console.log("Check language for user:", loggedInUser.id);
 
     //  CHECK IF USER ALREADY CHOSE A LANGUAGE
     const { data, error } = await supabase
@@ -34,6 +37,9 @@ function App() {
       .select("*")
       .eq("user_id", loggedInUser.id)
       .maybeSingle();
+
+      console.log("Language query result:", data);
+      console.log("Language querry error:", error);
 
     if (error) {
       console.log("Language check error:", error);
