@@ -1,23 +1,38 @@
 import { useState } from "react";
+import { supabase } from "../utils/supabaseClient";
 
-function DiaryEditor({ onSave }) {
-    const [text, setText] = useState("");
+function DiaryEditor({user, onSave}) {
+    const [content, setContent] = useState("");
 
-    const handleSave = () => {
-        if (text.trim() === "") return;
-        onSave(text);
-        setText("");
-    };
+    async function handleSave() {
+        const {error} = await supabase
+        .from("diary_entries")
+        .insert({
+            user_id: user.id,
+            content
+        });
 
-    return(
+        if (error) {
+            console.error("Error saving entry:", error);
+        } else {
+            console.log("Entry saved!");
+            onSave();
+        }
+    }
+
+    return (
         <div>
+            <h2>Write a new entry</h2>
             <textarea
-            value={text}
-            onChange = {(e) => setText(e.target.value)}
-            placeholder = "What's on your mind...?"
-            />
-            <button onClick = {handleSave}>Save Entry</button>
-        </div>
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="What's on your mind...?"
+                rows={10}
+                cols={50}
+                />
+
+            <button onClick={handleSave}>Save Entry</button>    
+            </div>
     );
 }
 

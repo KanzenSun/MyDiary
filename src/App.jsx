@@ -2,11 +2,16 @@ import { useState, useEffect } from "react";
 import { supabase } from "./utils/supabaseClient";
 import Login from "./components/Login";
 import ChooseLanguage from "./components/ChooseLanguage";
+import EntryList from "./components/EntryList";
+import DiaryEditor from "./components/DiaryEditor";
 
 function App() {
   const [user, setUser] = useState(null);
   const [entries, setEntries] = useState([]);
-  const [hasChosenLanguage, setHasChosenLanguage] = useState(false); // default true until we check
+  const [hasChosenLanguage, setHasChosenLanguage] = useState(false);
+
+  // ⭐ ADD THIS HERE — inside App(), not at the top of the file
+  const [step, setStep] = useState("entries");
 
   // Load diary entries
   const loadEntries = async (userId) => {
@@ -23,37 +28,32 @@ function App() {
     }
   };
 
-  //  Handle login + language check
+  // Handle login + language check
   const handleLogin = async (loggedInUser) => {
-    console.log("Logged in user:", loggedInUser);
-    console.log("User ID:", loggedInUser.id);
+    console.log("🔵 Logged in user:", loggedInUser);
+    console.log("🔵 User ID:", loggedInUser.id);
+
     setUser(loggedInUser);
 
-    console.log("Check language for user:", loggedInUser.id);
+    console.log("🔵 Checking language for user:", loggedInUser.id);
 
-    //  CHECK IF USER ALREADY CHOSE A LANGUAGE
     const { data, error } = await supabase
       .from("user_languages")
       .select("*")
       .eq("user_id", loggedInUser.id)
       .maybeSingle();
 
-      console.log("Language query result:", data);
-      console.log("Language querry error:", error);
-
-    if (error) {
-      console.log("Language check error:", error);
-    }
+    console.log("🟣 Language query result:", data);
+    console.log("🟣 Language query error:", error);
 
     if (data) {
-      console.log("User already has a language:", data);
+      console.log("🟢 User already has a language:", data);
       setHasChosenLanguage(true);
     } else {
-      console.log("User has no language yet");
+      console.log("🟠 User has NO language yet");
       setHasChosenLanguage(false);
     }
 
-    // Load diary entries AFTER language check
     loadEntries(loggedInUser.id);
   };
 
@@ -62,7 +62,7 @@ function App() {
     return <Login onLogin={handleLogin} />;
   }
 
-  // If user has NOT chosen a language > show ChooseLanguage
+  // If user has NOT chosen a language → show ChooseLanguage
   if (!hasChosenLanguage) {
     return (
       <ChooseLanguage
@@ -72,21 +72,29 @@ function App() {
     );
   }
 
-  // Otherwise show diary entries
-  return (
-    <div>
-      <h2>Your Diary Entries</h2>
 
-      {entries.length === 0 && <p>No entries yet.</p>}
+  if (step === "entries") {
+    return (
+      <EntryList
+        entries={entries}
+        onNewEntry={() => setStep("editor")}
+      />
+    );
+  }
 
-      {entries.map((entry) => (
-        <div key={entry.id}>
-          <p>{entry.content}</p>
-          <small>{entry.created_at}</small>
-        </div>
-      ))}
-    </div>
-  );
+  if (step === "editor") {
+    return (
+      <DiaryEditor
+        user={user}
+        onSave={() => {
+          loadEntries(user.id); // reload entries after saving
+          setStep("entries");
+        }}
+      />
+    );
+  }
+
+
 }
 
 export default App;

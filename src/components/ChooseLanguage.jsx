@@ -8,6 +8,8 @@ function ChooseLanguage({ user, onContinue }) {
   // Load languages from Supabase
   useEffect(() => {
     const fetchLanguages = async () => {
+      console.log("Fetching languages...");
+
       const { data, error } = await supabase
         .from("languages")
         .select("*")
@@ -26,17 +28,17 @@ function ChooseLanguage({ user, onContinue }) {
     fetchLanguages();
   }, []);
 
-  // ⭐ THIS is the part you were missing
+  //  THIS is the part missing
   async function handleContinue() {
     console.log("handleContinue fired");
     console.log("selectedLanguageId:", selectedLanguageId);
-    console.log("user.idk:",user.id);
+    console.log("user.id:",user.id);
 
     if (!selectedLanguageId) {
       console.log("No language detected - aborting insert");
      return;
     }
-    
+
 
     const { error } = await supabase
       .from("user_languages")
